@@ -4,6 +4,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -19,14 +20,7 @@ import gla.cs.joose.coursework.invmgt.model.ItemType;
 	@Path("invapi")
 public class InvAPI {
 	
-	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getIt() {
-		System.out.println("fuck sake");
-	return "Got it!";
-	}
-	
-	/**
+	/** 
 	 * This function receives request from rest client to delete an item from the inventory
 	 * @param itemid
 	 * @param uriinfo
@@ -76,33 +70,28 @@ public class InvAPI {
 	 * @param uriinfo
 	 * @return return a Response object containing  the updated item and the status code
 	 */
-	public Response updateItem(long updateitemid,
-							   long newBarcode,
-							   String newItemName, 
-							   String newItemType_s, 
-							   int newQty,
-							   String newSupplier,
-							   String newDesc,
+	@PUT
+	@Path("item/{itemid}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateItem(Item item,@PathParam("itemid") long itemid,
 							   @Context UriInfo uriinfo){	
-				        
 		boolean updated = false;
 		
-		boolean deleted = ItemFactory.delete(updateitemid);
+		boolean deleted = ItemFactory.delete(itemid);
 		Item uitem = null;
 		
 		if(deleted){
-			ItemType itemType = ItemType.getItemType(newItemType_s);
-			uitem = new Item(newBarcode, newItemName, itemType, newQty, newSupplier, newDesc);
-			uitem.setId(updateitemid);
-			boolean done = ItemFactory.addItem(uitem);
+			boolean done = ItemFactory.addItem(item);
 			if(done){
 				updated = true;
 			}
-		}	
-		
-		
-		//Task 7
-		return null;
+		}
+		if(updated){
+			return Response.status(Status.OK).entity(item).build();
+		}else{
+			return Response.status(Status.NOT_FOUND).build();
+		}
 					
 	}
 	
@@ -119,23 +108,16 @@ public class InvAPI {
 	 */
 	@POST
 	@Path("/items") 
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public Response addItem(long barcode,
-							String itemName, 
-					        String itemType_s, 
-					        int qty,
-					        String supplier,
-					        String desc,
-					        @Context UriInfo uriinfo){			
-		        
-		ItemType itemType = ItemType.getItemType(itemType_s);
-		Item item = new Item(barcode, itemName, itemType, qty, supplier, desc);
-				
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response addItem(Item item,
+					        @Context UriInfo uriinfo){		
 		boolean done = ItemFactory.addItem(item);
-		
-		// Task 8	
-		
-		return Response.status(Status.CREATED).build();
+		if(done){
+			return Response.status(Status.CREATED).build();
+		}else{
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 }

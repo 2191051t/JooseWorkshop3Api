@@ -19,7 +19,7 @@ public class ItemFactory {
 			if(item.getItemName() !=null && item.getItemName().length()>0){
 				if(!containsSpecialCharacter(item.getItemName())){
 					if(item.getSupplier() !=null && item.getSupplier().length()>0){
-						if(!containsSpecialCharacter(item.getSupplier())){
+						if(!containsSpecialCharacter(item.getSupplier())){		
 							if(!itemSupplierExist(item.getItemName(), item.getSupplier())){
 								if(item.getBarcode() >99 && item.getBarcode()  < 9999){
 									if(item.getQuantity() >=0 && item.getQuantity() <=100){										
@@ -48,7 +48,6 @@ public class ItemFactory {
 									if(qty >=0 && qty <=100){
 										ItemType itemType = ItemType.getItemType(itemType_s);
 										Item item = new Item(barcode, itemName, itemType, qty, supplier, desc);
-										
 										done = Util.storeItem(item);
 									}									
 								}								
